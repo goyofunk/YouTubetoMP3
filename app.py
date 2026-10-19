@@ -30,8 +30,8 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title('YouTube to MP3')
-        self.geometry('820x590')
-        self.minsize(820, 590)
+        self.geometry('690x590')
+        self.minsize(690, 590)
         self.configure(bg=BG)
         self.app_icon = tk.PhotoImage(file=str(ROOT / 'icon.png'))
         self.iconphoto(True, self.app_icon)
@@ -90,7 +90,7 @@ class App(tk.Tk):
         status_row.grid(row=4, column=0, sticky='ew', pady=(18, 8))
         status_row.columnconfigure(1, weight=1)
         self.status_label = self.label(status_row, '', MUTED, textvariable=self.status, anchor='w',
-                                       justify='left', wraplength=610)
+                                       justify='left', wraplength=490)
         self.status_label.grid(row=0, column=0, sticky='w')
         self.label(status_row, '', MUTED, textvariable=self.count).grid(row=0, column=1, sticky='w', padx=(12, 0))
         self.progress = FlatProgress(outer)
@@ -103,10 +103,10 @@ class App(tk.Tk):
         details.grid(row=7, column=0, sticky='ew')
         details.columnconfigure(1, weight=1)
         self.label(details, 'MP3 · 320 kbps', ACCENT).grid(row=0, column=0, sticky='w', padx=(0, 18))
-        self.label(details, '가장 좋은 원본 오디오를 선택합니다. 원본 이상의 음질로 복원되지는 않습니다.',
+        self.label(details, '원본 이상의 음질로 복원되지는 않습니다.',
                    MUTED).grid(row=0, column=1, sticky='w')
         self.label(details, '저장폴더', ACCENT).grid(row=1, column=0, sticky='w', pady=(4, 0))
-        self.label(details, '', MUTED, textvariable=self.folder, anchor='w', wraplength=610).grid(
+        self.label(details, '', MUTED, textvariable=self.folder, anchor='w', wraplength=500).grid(
             row=1, column=1, sticky='ew', pady=(4, 0))
         footer = tk.Frame(outer, bg=BG)
         footer.grid(row=8, column=0, sticky='ew', pady=(22, 0))
