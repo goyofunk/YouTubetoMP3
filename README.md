@@ -1,5 +1,7 @@
 # YouTube to MP3
 
+**[Windows 설치 파일 다운로드](https://github.com/goyofunk/YouTubetoMP3/releases/latest/download/YouTube-to-MP3-1.0.0-Setup.exe)** · [배포 페이지](https://github.com/goyofunk/YouTubetoMP3/releases/latest)
+
 유튜브 주소를 입력하면 MP3 파일로 저장하는 Windows 데스크톱 프로그램입니다. 한 곡 또는 재생목록 전체를 선택할 수 있으며 광고·결제·하루 다운로드 제한이 없습니다.
 
 ![YouTube to MP3 프로그램 화면](.github/thumb.png)
