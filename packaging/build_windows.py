@@ -66,6 +66,7 @@ def build(version):
     subprocess.run([sys.executable, '-m', 'PyInstaller', '--windowed', '--onedir', '--noupx',
                     '--name', 'YouTube to MP3', '--icon', str(SOURCE / 'icon.ico'),
                     '--add-data', f'{SOURCE / "icon.png"}:.',
+                    '--add-data', f'{SOURCE / "assets"}:assets',
                     '--distpath', str(DIST), '--workpath', str(BUILD / 'pyinstaller'),
                     '--specpath', str(BUILD), str(SOURCE / 'app.py')], cwd=ROOT, check=True)
     shutil.copy2(SOURCE / 'icon.ico', BUNDLE / 'icon.ico')
@@ -127,5 +128,5 @@ def build(version):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--version', default='1.0.0')
+    parser.add_argument('--version', default='1.0.1')
     build(parser.parse_args().version)

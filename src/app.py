@@ -5,10 +5,11 @@ import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from engine import Downloader, normalize_url
+from widgets import RoundedPanel, RoundedButton
 
 ROOT = Path(__file__).resolve().parent
-BG, CARD, INK, MUTED, ACCENT = '#F3F5F9', '#ffffff', '#111111', '#777777', '#427FDA'
-SECONDARY, BORDER = '#E7EDF4', '#D9D9D9'
+BG, CARD, INK, MUTED, ACCENT = '#F3F5F9', '#ffffff', '#111111', "#545454", '#427FDA'
+BORDER = '#D0DAE4'
 TEXT_FONT = ('맑은 고딕', 10)
 DOWNLOAD_FONT = ('맑은 고딕', 11, 'bold')
 
@@ -30,8 +31,8 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title('YouTube to MP3')
-        self.geometry('690x590')
-        self.minsize(690, 590)
+        self.geometry('420x578')
+        self.minsize(420, 578)
         self.configure(bg=BG)
         self.app_icon = tk.PhotoImage(file=str(ROOT / 'icon.png'))
         self.iconphoto(True, self.app_icon)
@@ -45,23 +46,17 @@ class App(tk.Tk):
         self.folder = tk.StringVar(value=str(Path.home() / 'Downloads'))
         self.status = tk.StringVar(value='주소를 붙여넣고 다운로드를 시작하세요.')
         self.count = tk.StringVar(value='저장 확인 0곡')
-        outer = tk.Frame(self, bg=BG, padx=30, pady=28)
-        outer.pack(fill='both', expand=True)
-        outer.columnconfigure(0, weight=1)
-        outer.rowconfigure(6, weight=1)
-        self.label(outer, '유튜브주소', INK).grid(row=0, column=0, sticky='w', pady=(0, 10))
-        row = tk.Frame(outer, bg=ACCENT, padx=2, pady=2, height=50)
-        row.grid(row=1, column=0, sticky='ew')
-        row.pack_propagate(False)
-        input_area = tk.Frame(row, bg=CARD, padx=12)
-        self.entry = tk.Entry(input_area, textvariable=self.url, bg=CARD, fg=INK, relief='flat', bd=0,
-                              highlightthickness=0, insertbackground=INK, font=TEXT_FONT)
-        self.paste_button = self.button(row, '붙여넣기', self.paste, True)
-        self.paste_button.pack(side='right', fill='y', ipadx=12)
-        input_area.pack(side='left', fill='both', expand=True)
-        self.entry.pack(fill='both', expand=True)
+        outer = tk.Frame(self, bg=BG)
+        outer.place(x=24, y=24, relwidth=1, width=-48, relheight=1, height=-48)
+        self.label(outer, '유튜브주소', INK).place(x=0, y=0, height=20)
+        self.input_panel = RoundedPanel(outer, border=ACCENT, line_width=2)
+        self.input_panel.place(x=0, y=33, relwidth=1, height=38)
+        self.entry = tk.Entry(self.input_panel, textvariable=self.url, bg=CARD, fg=INK,
+                              relief='flat', bd=0, highlightthickness=0,
+                              insertbackground=INK, font=TEXT_FONT)
+        self.entry.place(x=12, y=3, relwidth=1, width=-24, height=32)
         modes = tk.Frame(outer, bg=BG)
-        modes.grid(row=2, column=0, sticky='w', pady=(22, 24), padx=10)
+        modes.place(x=0, y=88, relwidth=1, height=22)
         self.radio_off = self.radio_image(False)
         self.radio_on = self.radio_image(True)
         self.radios = []
@@ -72,54 +67,49 @@ class App(tk.Tk):
                                   indicatoron=False, relief='flat', offrelief='flat', overrelief='flat',
                                   bd=0, highlightthickness=0, padx=0, pady=0,
                                   font=TEXT_FONT, cursor='hand2')
-            radio.pack(side='left', padx=(0, 24))
+            radio.pack(side='left', padx=(0, 14))
             self.radios.append(radio)
+        self.download_icon = tk.PhotoImage(file=str(ROOT / 'assets' / 'icon_down.png'))
+        self.stop_icon = tk.PhotoImage(file=str(ROOT / 'assets' / 'icon_stop.png'))
+        self.start_button = self.button(outer, 'MP3 다운로드', self.start, True,
+                                        emphasis=True, image=self.download_icon)
+        self.start_button.place(x=0, y=128, relwidth=1, height=38)
         actions = tk.Frame(outer, bg=BG)
-        actions.grid(row=3, column=0, sticky='ew')
-        actions.columnconfigure(0, weight=1)
-        actions.columnconfigure(1, minsize=76)
-        actions.columnconfigure(2, minsize=126)
-        actions.rowconfigure(0, minsize=48)
-        self.start_button = self.button(actions, 'MP3 다운로드', self.start, True, emphasis=True)
-        self.start_button.grid(row=0, column=0, sticky='nsew')
-        self.stop_button = self.button(actions, '중지', self.stop)
-        self.stop_button.grid(row=0, column=1, sticky='nsew', padx=(6, 6))
+        actions.place(x=0, y=187, relwidth=1, height=34)
+        self.stop_button = self.button(actions, '중지', self.stop, image=self.stop_icon)
+        self.stop_button.place(x=0, y=0, width=94, height=34)
         self.stop_button.configure(state='disabled')
-        self.button(actions, '저장 폴더 열기', self.open_folder).grid(row=0, column=2, sticky='nsew')
+        self.open_button = self.button(actions, '저장 폴더 열기', self.open_folder)
+        self.open_button.place(x=100, y=0, relwidth=.35, width=-2, height=34)
+        self.choose_button = self.button(actions, '저장폴더 변경', self.choose)
+        self.choose_button.place(relx=1, x=-132, y=0, width=132, height=34)
         status_row = tk.Frame(outer, bg=BG)
-        status_row.grid(row=4, column=0, sticky='ew', pady=(18, 8))
-        status_row.columnconfigure(1, weight=1)
-        self.status_label = self.label(status_row, '', MUTED, textvariable=self.status, anchor='w',
-                                       justify='left', wraplength=490)
-        self.status_label.grid(row=0, column=0, sticky='w')
-        self.label(status_row, '', MUTED, textvariable=self.count).grid(row=0, column=1, sticky='w', padx=(12, 0))
+        status_row.place(x=0, y=244, relwidth=1, height=22)
+        self.status_label = self.label(status_row, '', MUTED, textvariable=self.status, anchor='w')
+        self.status_label.place(x=0, y=0, relwidth=1, width=-94, height=22)
+        self.count_number = tk.StringVar(value='0')
+        self.count.trace_add('write', lambda *_: self.count_number.set(self.count.get().split()[-1].rstrip('곡')))
+        self.label(status_row, '저장 확인', MUTED).place(relx=1, x=-88, y=0, height=22)
+        self.count_label = self.label(status_row, '', ACCENT, textvariable=self.count_number, anchor='e')
+        self.count_label.place(relx=1, x=-32, y=0, width=20, height=22)
+        self.label(status_row, '곡', MUTED).place(relx=1, x=-12, y=0, width=12, height=22)
         self.progress = FlatProgress(outer)
-        self.progress.grid(row=5, column=0, sticky='ew')
-        self.log = tk.Text(outer, height=1, bg=SECONDARY, fg=INK, relief='flat', bd=0,
-                           highlightthickness=0, padx=12, pady=10,
+        self.progress.place(x=0, y=273, relwidth=1, height=11)
+        self.log_panel = RoundedPanel(outer)
+        self.log_panel.place(x=0, y=297, relwidth=1, relheight=1, height=-430)
+        self.log = tk.Text(self.log_panel, height=1, bg=CARD, fg=INK, relief='flat', bd=0,
+                           highlightthickness=0, padx=8, pady=6,
                            font=TEXT_FONT, state='disabled', wrap='word')
-        self.log.grid(row=6, column=0, sticky='nsew', pady=(16, 22))
+        self.log.place(x=4, y=4, relwidth=1, width=-8, relheight=1, height=-8)
         details = tk.Frame(outer, bg=BG)
-        details.grid(row=7, column=0, sticky='ew')
-        details.columnconfigure(1, weight=1)
-        self.label(details, 'MP3 · 320 kbps', ACCENT).grid(row=0, column=0, sticky='w', padx=(0, 18))
-        self.label(details, '원본 이상의 음질로 복원되지는 않습니다.',
-                   MUTED).grid(row=0, column=1, sticky='w')
-        self.label(details, '저장폴더', ACCENT).grid(row=1, column=0, sticky='w', pady=(4, 0))
-        self.label(details, '', MUTED, textvariable=self.folder, anchor='w', wraplength=500).grid(
-            row=1, column=1, sticky='ew', pady=(4, 0))
-        footer = tk.Frame(outer, bg=BG)
-        footer.grid(row=8, column=0, sticky='ew', pady=(22, 0))
-        footer.columnconfigure(0, weight=1)
-        footer.columnconfigure(1, minsize=146)
-        footer.columnconfigure(2, minsize=160)
-        self.label(footer, '최초 실행 시 필요한 도구를 자동으로 준비합니다.', MUTED).grid(row=0, column=0, sticky='w')
-        self.choose_button = self.button(footer, '저장폴더 변경', self.choose)
-        self.choose_button.grid(row=0, column=1, sticky='nsew', padx=(0, 10))
-        self.update_button = self.button(footer, '다운로드 도구 업데이트', self.update_tools)
-        self.update_button.configure(padx=7)
-        self.update_button.grid(row=0, column=2, sticky='nsew')
-        footer.rowconfigure(0, minsize=42)
+        details.place(x=0, rely=1, y=-117, relwidth=1, height=48)
+        self.label(details, 'MP3 · 320 kbps', ACCENT).place(x=0, y=0, height=22)
+        self.label(details, '원본 이상의 음질로 복원되지는 않습니다.', MUTED).place(x=113, y=0, height=22)
+        self.label(details, '저장폴더', ACCENT).place(x=0, y=24, height=22)
+        self.folder_label = self.label(details, '', MUTED, textvariable=self.folder, anchor='w')
+        self.folder_label.place(x=60, y=24, relwidth=1, width=-60, height=22)
+        self.update_button = self.button(outer, '업데이트', self.update_tools)
+        self.update_button.place(x=0, rely=1, y=-62, width=70, height=30)
         self.protocol('WM_DELETE_WINDOW', self.close)
         self.after(100, self.poll)
         self.entry.focus_set()
@@ -146,13 +136,10 @@ class App(tk.Tk):
             image.put('{' + ' '.join(row) + '}', to=(0, y))
         return image
 
-    def button(self, parent, text, callback, primary=False, emphasis=False):
-        return tk.Button(parent, text=text, command=callback, bg=ACCENT if primary else SECONDARY,
-                         fg='white' if primary else INK, relief='flat', bd=0, highlightthickness=0,
-                         font=DOWNLOAD_FONT if emphasis else TEXT_FONT, padx=10, pady=9,
-                         cursor='hand2', activebackground='#3974CB' if primary else '#DCE5F0',
-                         activeforeground='white' if primary else INK,
-                         disabledforeground='#D6E3F8' if primary else '#999999')
+    def button(self, parent, text, callback, primary=False, emphasis=False, image=None):
+        return RoundedButton(parent, text, callback,
+                             font=DOWNLOAD_FONT if emphasis else TEXT_FONT,
+                             primary=primary, image=image)
 
     def paste(self):
         try:
@@ -175,7 +162,7 @@ class App(tk.Tk):
 
     def set_busy(self, value):
         self.busy = value
-        for widget in [self.start_button, self.choose_button, self.update_button, self.paste_button, self.entry, *self.radios]:
+        for widget in [self.start_button, self.choose_button, self.update_button, self.entry, *self.radios]:
             widget.configure(state='disabled' if value else 'normal')
         self.stop_button.configure(state='normal' if value else 'disabled')
 
