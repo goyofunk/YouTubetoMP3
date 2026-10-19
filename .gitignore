@@ -6,3 +6,10 @@ __pycache__/
 tools/
 downloads/
 verification/
+.build-env/
+build/
+dist/
+*.spec
+
+# 설치 EXE는 GitHub Releases로 배포하며 로컬 루트에는 유지
+/YouTube-to-MP3-*-Setup.exe

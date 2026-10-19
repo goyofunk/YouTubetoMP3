@@ -7,9 +7,9 @@ import shutil
 import tempfile
 import urllib.request
 import zipfile
+from runtime_paths import TOOLS_DIR
 
-ROOT = Path(__file__).resolve().parent
-TOOLS = ROOT / 'tools'
+TOOLS = TOOLS_DIR
 SPECS = [
     ('yt-dlp/yt-dlp-nightly-builds', 'yt-dlp.exe', ['yt-dlp.exe']),
     ('yt-dlp/FFmpeg-Builds', 'ffmpeg-master-latest-win64-gpl-shared.zip', ['ffmpeg.exe', 'ffprobe.exe']),
