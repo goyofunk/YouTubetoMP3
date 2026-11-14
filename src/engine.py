@@ -100,6 +100,7 @@ class Downloader:
             elif code or errors:
                 self.emit('done', f'일부 또는 전체 실패 · 저장 확인 {completed}곡 · 아래 기록을 확인해주세요.')
             elif completed:
+                self.emit('log', '다운로드 완료')
                 self.emit('done', f'완료 · 저장 확인 {completed}곡')
             else:
                 self.emit('done', '저장된 MP3가 없습니다. 아래 기록을 확인해주세요.')

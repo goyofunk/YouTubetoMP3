@@ -2,7 +2,7 @@
 
 ![YouTube to MP3 프로그램 화면](.github/thumb.png)
 
-- [설치 EXE 다운로드](https://github.com/goyofunk/YouTubetoMP3/releases/latest/download/YouTube-to-MP3-1.0.1-Setup.exe) · Windows 64비트 · Python 별도 설치 불필요
+- [설치 EXE 다운로드](https://github.com/goyofunk/YouTubetoMP3/releases/latest/download/YouTube-to-MP3-1.0.2-Setup.exe) · Windows 64비트 · Python 별도 설치 불필요
 - 설치 후 시작 메뉴에서 실행 → 유튜브 주소 입력 → MP3 다운로드
 - 광고 없음. 스팸 없음. 다운로드 갯수 제한 없음.
 - 한 곡 또는 재생목록 전체 다운로드

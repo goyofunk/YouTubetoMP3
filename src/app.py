@@ -4,10 +4,12 @@ import queue
 import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox
+from tkinter.font import Font
 from engine import Downloader, normalize_url
 from widgets import RoundedPanel, RoundedButton
 
 ROOT = Path(__file__).resolve().parent
+APP_VERSION = '1.02'
 BG, CARD, INK, MUTED, ACCENT = '#F3F5F9', '#ffffff', '#111111', "#545454", '#427FDA'
 BORDER = '#D0DAE4'
 TEXT_FONT = ('맑은 고딕', 10)
@@ -60,14 +62,16 @@ class App(tk.Tk):
         self.radio_off = self.radio_image(False)
         self.radio_on = self.radio_image(True)
         self.radios = []
+        radio_font = Font(root=self, font=TEXT_FONT)
         for text, value in [('한곡만 다운로드', 'single'), ('재생목록 전체 다운로드', 'playlist')]:
-            radio = tk.Radiobutton(modes, text='  ' + text, variable=self.mode, value=value, bg=BG,
+            radio = tk.Radiobutton(modes, text=' ' + text, variable=self.mode, value=value, bg=BG,
                                   activebackground=BG, activeforeground=INK, selectcolor=BG, fg=INK,
                                   image=self.radio_off, selectimage=self.radio_on, compound='left',
                                   indicatoron=False, relief='flat', offrelief='flat', overrelief='flat',
                                   bd=0, highlightthickness=0, padx=0, pady=0,
                                   font=TEXT_FONT, cursor='hand2')
-            radio.pack(side='left', padx=(0, 14))
+            removed_space = radio_font.measure('  ' + text) - radio_font.measure(' ' + text)
+            radio.pack(side='left', padx=(0, 14 + removed_space))
             self.radios.append(radio)
         self.download_icon = tk.PhotoImage(file=str(ROOT / 'assets' / 'icon_down.png'))
         self.stop_icon = tk.PhotoImage(file=str(ROOT / 'assets' / 'icon_stop.png'))
@@ -76,23 +80,30 @@ class App(tk.Tk):
         self.start_button.place(x=0, y=128, relwidth=1, height=38)
         actions = tk.Frame(outer, bg=BG)
         actions.place(x=0, y=187, relwidth=1, height=34)
+        action_gap = 9
+        choose_width = 132
         self.stop_button = self.button(actions, '중지', self.stop, image=self.stop_icon)
         self.stop_button.place(x=0, y=0, width=94, height=34)
         self.stop_button.configure(state='disabled')
-        self.open_button = self.button(actions, '저장 폴더 열기', self.open_folder)
-        self.open_button.place(x=100, y=0, relwidth=.35, width=-2, height=34)
+        self.open_button = self.button(actions, '저장폴더 열기', self.open_folder)
+        self.open_button.place(relx=1, x=-(choose_width + action_gap), y=0,
+                               anchor='ne', width=128, height=34)
         self.choose_button = self.button(actions, '저장폴더 변경', self.choose)
-        self.choose_button.place(relx=1, x=-132, y=0, width=132, height=34)
+        self.choose_button.place(relx=1, y=0, anchor='ne', width=choose_width, height=34)
         status_row = tk.Frame(outer, bg=BG)
         status_row.place(x=0, y=244, relwidth=1, height=22)
-        self.status_label = self.label(status_row, '', MUTED, textvariable=self.status, anchor='w')
-        self.status_label.place(x=0, y=0, relwidth=1, width=-94, height=22)
+        status_row.columnconfigure(0, weight=1)
+        status_row.rowconfigure(0, weight=1)
+        self.status_label = self.label(status_row, '', MUTED, textvariable=self.status, anchor='w', width=1)
+        self.status_label.grid(row=0, column=0, sticky='nsew', padx=(0, 6))
         self.count_number = tk.StringVar(value='0')
         self.count.trace_add('write', lambda *_: self.count_number.set(self.count.get().split()[-1].rstrip('곡')))
-        self.label(status_row, '저장 확인', MUTED).place(relx=1, x=-88, y=0, height=22)
-        self.count_label = self.label(status_row, '', ACCENT, textvariable=self.count_number, anchor='e')
-        self.count_label.place(relx=1, x=-32, y=0, width=20, height=22)
-        self.label(status_row, '곡', MUTED).place(relx=1, x=-12, y=0, width=12, height=22)
+        count_group = tk.Frame(status_row, bg=BG)
+        count_group.grid(row=0, column=1, sticky='e')
+        self.label(count_group, '저장 확인 ', MUTED, padx=0).pack(side='left')
+        self.count_label = self.label(count_group, '', ACCENT, textvariable=self.count_number, padx=0)
+        self.count_label.pack(side='left')
+        self.label(count_group, '곡', MUTED, padx=0).pack(side='left')
         self.progress = FlatProgress(outer)
         self.progress.place(x=0, y=273, relwidth=1, height=11)
         self.log_panel = RoundedPanel(outer)
@@ -108,8 +119,10 @@ class App(tk.Tk):
         self.label(details, '저장폴더', ACCENT).place(x=0, y=24, height=22)
         self.folder_label = self.label(details, '', MUTED, textvariable=self.folder, anchor='w')
         self.folder_label.place(x=60, y=24, relwidth=1, width=-60, height=22)
-        self.update_button = self.button(outer, '업데이트', self.update_tools)
-        self.update_button.place(x=0, rely=1, y=-62, width=70, height=30)
+        update_text = f'업데이트 (현재 버전 v{APP_VERSION})'
+        update_width = Font(root=self, font=TEXT_FONT).measure(update_text) + 20
+        self.update_button = self.button(outer, update_text, self.update_tools)
+        self.update_button.place(x=0, rely=1, y=-62, width=update_width, height=30)
         self.protocol('WM_DELETE_WINDOW', self.close)
         self.after(100, self.poll)
         self.entry.focus_set()
@@ -148,7 +161,7 @@ class App(tk.Tk):
             messagebox.showinfo('주소 붙여넣기', '클립보드에 복사된 텍스트가 없습니다.')
 
     def choose(self):
-        folder = filedialog.askdirectory(initialdir=self.folder.get(), title='MP3 저장 폴더')
+        folder = filedialog.askdirectory(initialdir=self.folder.get(), title='MP3 저장폴더')
         if folder:
             self.folder.set(folder)
 
@@ -158,7 +171,7 @@ class App(tk.Tk):
             path.mkdir(parents=True, exist_ok=True)
             os.startfile(path)
         except OSError as error:
-            messagebox.showerror('저장 폴더', str(error))
+            messagebox.showerror('저장폴더', str(error))
 
     def set_busy(self, value):
         self.busy = value
