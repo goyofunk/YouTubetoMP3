@@ -46,17 +46,22 @@ class App(tk.Tk):
         self.url = tk.StringVar()
         self.mode = tk.StringVar(value='single')
         self.folder = tk.StringVar(value=str(Path.home() / 'Downloads'))
-        self.status = tk.StringVar(value='주소를 붙여넣고 다운로드를 시작하세요.')
+        self.status = tk.StringVar()
         self.count = tk.StringVar(value='저장 확인 0곡')
         outer = tk.Frame(self, bg=BG)
         outer.place(x=24, y=24, relwidth=1, width=-48, relheight=1, height=-48)
-        self.label(outer, '유튜브주소', INK).place(x=0, y=0, height=20)
         self.input_panel = RoundedPanel(outer, border=ACCENT, line_width=2)
         self.input_panel.place(x=0, y=33, relwidth=1, height=38)
         self.entry = tk.Entry(self.input_panel, textvariable=self.url, bg=CARD, fg=INK,
                               relief='flat', bd=0, highlightthickness=0,
                               insertbackground=INK, font=TEXT_FONT)
         self.entry.place(x=12, y=3, relwidth=1, width=-24, height=32)
+        self.url_placeholder = self.label(self.input_panel, '유튜브 주소를 입력하세요', MUTED,
+                                          anchor='w', padx=0, pady=0)
+        self.url_placeholder.configure(bg=CARD, cursor='xterm')
+        self.url_placeholder.bind('<Button-1>', lambda event: self.entry.focus_set())
+        self.url.trace_add('write', self.sync_url_placeholder)
+        self.sync_url_placeholder()
         modes = tk.Frame(outer, bg=BG)
         modes.place(x=0, y=88, relwidth=1, height=22)
         self.radio_off = self.radio_image(False)
@@ -130,6 +135,12 @@ class App(tk.Tk):
     def label(self, parent, text, color, **kwargs):
         return tk.Label(parent, text=text, bg=parent['bg'], fg=color,
                         font=TEXT_FONT, **kwargs)
+
+    def sync_url_placeholder(self, *_):
+        if self.url.get():
+            self.url_placeholder.place_forget()
+        else:
+            self.url_placeholder.place(x=14, y=3, height=32)
 
     def radio_image(self, selected):
         image = tk.PhotoImage(width=20, height=20)
