@@ -9,7 +9,7 @@ from engine import Downloader, normalize_url
 from widgets import RoundedPanel, RoundedButton
 
 ROOT = Path(__file__).resolve().parent
-APP_VERSION = '1.02'
+APP_VERSION = '1.03'
 BG, CARD, INK, MUTED, ACCENT = '#F3F5F9', '#ffffff', '#111111', "#545454", '#427FDA'
 BORDER = '#D0DAE4'
 TEXT_FONT = ('맑은 고딕', 10)
@@ -33,8 +33,8 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title('YouTube to MP3')
-        self.geometry('420x578')
-        self.minsize(420, 578)
+        self.geometry('420x518')
+        self.minsize(420, 518)
         self.configure(bg=BG)
         self.app_icon = tk.PhotoImage(file=str(ROOT / 'icon.png'))
         self.iconphoto(True, self.app_icon)
@@ -51,7 +51,7 @@ class App(tk.Tk):
         outer = tk.Frame(self, bg=BG)
         outer.place(x=24, y=24, relwidth=1, width=-48, relheight=1, height=-48)
         self.input_panel = RoundedPanel(outer, border=ACCENT, line_width=2)
-        self.input_panel.place(x=0, y=33, relwidth=1, height=38)
+        self.input_panel.place(x=0, y=0, relwidth=1, height=38)
         self.entry = tk.Entry(self.input_panel, textvariable=self.url, bg=CARD, fg=INK,
                               relief='flat', bd=0, highlightthickness=0,
                               insertbackground=INK, font=TEXT_FONT)
@@ -63,7 +63,7 @@ class App(tk.Tk):
         self.url.trace_add('write', self.sync_url_placeholder)
         self.sync_url_placeholder()
         modes = tk.Frame(outer, bg=BG)
-        modes.place(x=0, y=88, relwidth=1, height=22)
+        modes.place(x=0, y=55, relwidth=1, height=22)
         self.radio_off = self.radio_image(False)
         self.radio_on = self.radio_image(True)
         self.radios = []
@@ -82,9 +82,9 @@ class App(tk.Tk):
         self.stop_icon = tk.PhotoImage(file=str(ROOT / 'assets' / 'icon_stop.png'))
         self.start_button = self.button(outer, 'MP3 다운로드', self.start, True,
                                         emphasis=True, image=self.download_icon)
-        self.start_button.place(x=0, y=128, relwidth=1, height=38)
+        self.start_button.place(x=0, y=95, relwidth=1, height=38)
         actions = tk.Frame(outer, bg=BG)
-        actions.place(x=0, y=187, relwidth=1, height=34)
+        actions.place(x=0, y=154, relwidth=1, height=34)
         action_gap = 9
         choose_width = 132
         self.stop_button = self.button(actions, '중지', self.stop, image=self.stop_icon)
@@ -96,7 +96,7 @@ class App(tk.Tk):
         self.choose_button = self.button(actions, '저장폴더 변경', self.choose)
         self.choose_button.place(relx=1, y=0, anchor='ne', width=choose_width, height=34)
         status_row = tk.Frame(outer, bg=BG)
-        status_row.place(x=0, y=244, relwidth=1, height=22)
+        status_row.place(x=0, y=211, relwidth=1, height=22)
         status_row.columnconfigure(0, weight=1)
         status_row.rowconfigure(0, weight=1)
         self.status_label = self.label(status_row, '', MUTED, textvariable=self.status, anchor='w', width=1)
@@ -110,15 +110,15 @@ class App(tk.Tk):
         self.count_label.pack(side='left')
         self.label(count_group, '곡', MUTED, padx=0).pack(side='left')
         self.progress = FlatProgress(outer)
-        self.progress.place(x=0, y=273, relwidth=1, height=11)
+        self.progress.place(x=0, y=240, relwidth=1, height=11)
         self.log_panel = RoundedPanel(outer)
-        self.log_panel.place(x=0, y=297, relwidth=1, relheight=1, height=-430)
+        self.log_panel.place(x=0, y=264, relwidth=1, relheight=1, height=-370)
         self.log = tk.Text(self.log_panel, height=1, bg=CARD, fg=INK, relief='flat', bd=0,
                            highlightthickness=0, padx=8, pady=6,
                            font=TEXT_FONT, state='disabled', wrap='word')
         self.log.place(x=4, y=4, relwidth=1, width=-8, relheight=1, height=-8)
         details = tk.Frame(outer, bg=BG)
-        details.place(x=0, rely=1, y=-117, relwidth=1, height=48)
+        details.place(x=0, rely=1, y=-90, relwidth=1, height=48)
         self.label(details, 'MP3 · 320 kbps', ACCENT).place(x=0, y=0, height=22)
         self.label(details, '원본 이상의 음질로 복원되지는 않습니다.', MUTED).place(x=113, y=0, height=22)
         self.label(details, '저장폴더', ACCENT).place(x=0, y=24, height=22)
@@ -127,7 +127,7 @@ class App(tk.Tk):
         update_text = f'업데이트 (현재 V{APP_VERSION})'
         update_width = Font(root=self, font=TEXT_FONT).measure(update_text) + 20
         self.update_button = self.button(outer, update_text, self.update_tools)
-        self.update_button.place(x=0, rely=1, y=-62, width=update_width, height=30)
+        self.update_button.place(x=0, rely=1, y=-35, width=update_width, height=30)
         self.protocol('WM_DELETE_WINDOW', self.close)
         self.after(100, self.poll)
         self.entry.focus_set()
