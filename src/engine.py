@@ -64,11 +64,12 @@ class Downloader:
         completed, errors = 0, 0
         try:
             install(lambda s: self.emit('log', s), self.cancelled, update=update)
-            if update:
-                self.emit('done', '도구 업데이트 완료')
-                return
             if self.cancelled.is_set():
                 raise InterruptedError()
+            if update:
+                self.emit('log', '도구 업데이트 완료. MP3를 받으려면 MP3 다운로드 버튼을 눌러주세요.')
+                self.emit('done', '도구 업데이트 완료')
+                return
             args = command(url, folder, playlist)
             Path(folder).mkdir(parents=True, exist_ok=True)
             with self.lock:

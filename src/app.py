@@ -119,7 +119,7 @@ class App(tk.Tk):
         self.label(details, '저장폴더', ACCENT).place(x=0, y=24, height=22)
         self.folder_label = self.label(details, '', MUTED, textvariable=self.folder, anchor='w')
         self.folder_label.place(x=60, y=24, relwidth=1, width=-60, height=22)
-        update_text = f'업데이트 (현재 버전 v{APP_VERSION})'
+        update_text = f'업데이트 (현재 V{APP_VERSION})'
         update_width = Font(root=self, font=TEXT_FONT).measure(update_text) + 20
         self.update_button = self.button(outer, update_text, self.update_tools)
         self.update_button.place(x=0, rely=1, y=-62, width=update_width, height=30)

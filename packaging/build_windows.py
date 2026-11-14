@@ -128,5 +128,5 @@ def build(version):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--version', default='1.0.2')
+    parser.add_argument('--version', default='1.0.3')
     build(parser.parse_args().version)
